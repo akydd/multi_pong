@@ -1,0 +1,21 @@
+{
+  "name": "multi_pong",
+  "version": "1.0.0",
+  "description": "Multiplayer Pong using nodejs and Phaser",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "phaser",
+    "nodejs",
+    "multiplayer",
+    "pong"
+  ],
+  "author": "Alan Kydd",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.13.3",
+    "phaser": "^2.4.4"
+  }
+}
