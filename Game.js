@@ -9,10 +9,21 @@ Game.Game.prototype = {
 
         this.cursors = this.input.keyboard.createCursorKeys();
 
+        this.player1Score = 0;
+        this.player2Score = 0;
+
         this.createPaddles();
+        this.createBall();
         this.createScoreBoard();
     },
     update: function() {
+        // If the ball is dead, place it and set it in motion.
+        if (!this.ball.alive) {
+            this.ball.reset(320, 480);
+            this.ball.body.velocity.x = 400;
+            this.ball.body.velocity.y = 400;
+        }
+
         // paddle motion
         this.player1.body.velocity.x = 0;
         if (this.cursors.left.isDown) {
@@ -28,6 +39,16 @@ Game.Game.prototype = {
         this.add.existing(this.player1);
         this.add.existing(this.player2);
     },
+    createBall: function() {
+        // Initially, create a 'dead' ball.  We will revive it later.
+        this.ball = new Ball(this, 0, 0);
+        this.add.existing(this.ball);
+        this.ball.kill();
+
+        this.ball.events.onOutOfBounds.add(this.ballLost, this);
+    },
     createScoreBoard: function() {
+    },
+    ballLost: function() {
     }
 };
