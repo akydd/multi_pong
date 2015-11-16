@@ -10,10 +10,11 @@
         }
     </style>
     <script src="./node_modules/phaser/build/phaser.js" charset="utf-8"></script>
+    <script src="Paddle.js"></script>
     <script src="Boot.js"></script>
     <script src="Preloader.js"></script>
-    <!--<script src="MainMenu.js"></script>-->
-    <!--<script src="Game.js"></script>-->
+    <script src="Menu.js"></script>
+    <script src="Game.js"></script>
     <title>Multiplayer Pong</title>
 </head>
 
@@ -29,8 +30,8 @@
         //	Add the game States
         game.state.add('Boot', Game.Boot);
         game.state.add('Preloader', Game.Preloader);
-        // game.state.add('MainMenu', Game.MainMenu);
-        // game.state.add('Game', Game.Game);
+        game.state.add('Menu', Game.Menu);
+        game.state.add('Game', Game.Game);
 
         // Now start the Boot state.
         game.state.start('Boot');
