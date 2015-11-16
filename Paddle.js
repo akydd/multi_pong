@@ -1,7 +1,7 @@
 "use strict";
 
 var Paddle = function(game, x, y) {
-    Phaser.Sprite.call(this, game, x, y, 'loadingBar');
+    Phaser.Sprite.call(this, game, x, y, 'paddle');
 
     this.anchor.setTo(0.5);
 

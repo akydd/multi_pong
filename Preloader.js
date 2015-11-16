@@ -13,6 +13,9 @@ Game.Preloader.prototype = {
         loadingOutline.anchor.setTo(0.5, 0.5);
 
         this.load.setPreloadSprite(loadingBar);
+
+        this.load.image('paddle', 'assets/images/paddle.png');
+        this.load.image('ball', 'assets/images/ball.png');
     },
     create: function() {
         this.state.start('Menu');
