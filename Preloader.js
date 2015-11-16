@@ -16,6 +16,8 @@ Game.Preloader.prototype = {
 
         this.load.image('paddle', 'assets/images/paddle.png');
         this.load.image('ball', 'assets/images/ball.png');
+        this.load.audio('bump', 'assets/sounds/bump.ogg', true);
+        this.load.audio('bump1', 'assets/sounds/bump1.ogg', true);
     },
     create: function() {
         this.state.start('Menu');

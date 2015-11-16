@@ -6,8 +6,8 @@ var Paddle = function(game, x, y) {
     this.anchor.setTo(0.5);
 
     game.physics.arcade.enableBody(this);
-    this.checkWorldBounds = true;
     this.body.collideWorldBounds = true;
+    this.body.immovable = true;
 };
 
 Paddle.prototype = Object.create(Phaser.Sprite.prototype);
