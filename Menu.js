@@ -10,7 +10,8 @@ Game.Menu.prototype = {
         this.cursor = this.input.keyboard.createCursorKeys();
     },
     update: function() {
-        if (this.cursor.up.isDown)
+        if (this.cursor.up.isDown) {
             this.state.start('Game');
+        }
     }
 };
