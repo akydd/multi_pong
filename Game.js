@@ -56,7 +56,18 @@ Game.Game.prototype = {
         this.add.existing(this.ball);
         this.ball.kill();
 
-        this.ball.events.onOutOfBounds.add(this.resetBall, this);
+        this.ball.events.onOutOfBounds.add(this.scoreAndReset, this);
+    },
+    scoreAndReset: function() {
+        var ypos = this.ball.y;
+        if (ypos <= 0) {
+            this.player2Score += 1;
+        } else {
+            this.player1Score += 1;
+        }
+
+        console.log("Score is " + this.player1Score + " to " + this.player2Score);
+        this.resetBall();
     },
     resetBall: function() {
         var xpos = this.rnd.integerInRange(0, 640);
