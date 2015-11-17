@@ -59,9 +59,12 @@ Game.Game.prototype = {
         this.ball.events.onOutOfBounds.add(this.resetBall, this);
     },
     resetBall: function() {
+        var xpos = this.rnd.integerInRange(0, 640);
+        var xdir = this.rnd.pick([-1, 1]);
+
         this.time.events.add(Phaser.Timer.SECOND * 3, function() {
-            this.ball.reset(320, 480);
-            this.ball.body.velocity.x = 400;
+            this.ball.reset(xpos, 480);
+            this.ball.body.velocity.x = xdir * 400;
             this.ball.body.velocity.y = 400;
         }, this);
     },
