@@ -15,9 +15,6 @@ Game.Game.prototype = {
         this.bumpSound = this.add.audio('bump');
         this.bump1Sound = this.add.audio('bump1');
 
-        this.player1Score = 0;
-        this.player2Score = 0;
-
         this.initialSetup = true;
 
         this.createPaddles();
@@ -76,16 +73,22 @@ Game.Game.prototype = {
         }
     },
     resetBall: function() {
+        // The x coordinate, horizontal direction and vertical direction
+        // of the ball are picked at random.
         var xpos = this.rnd.integerInRange(0, 640);
         var xdir = this.rnd.pick([-1, 1]);
+        var ydir = this.rnd.pick([-1, 1]);
 
         this.time.events.add(Phaser.Timer.SECOND * 3, function() {
             this.ball.reset(xpos, 480);
             this.ball.body.velocity.x = xdir * 400;
-            this.ball.body.velocity.y = 400;
+            this.ball.body.velocity.y = ydir * 400;
         }, this);
     },
     createScoreBoard: function() {
+        this.player1Score = 0;
+        this.player2Score = 0;
+
         this.player1ScoreText = this.add.text(20, 20, this.player1Score, this.textStyle);
         this.player2ScoreText = this.add.text(20, 920, this.player2Score, this.textStyle);
     },
