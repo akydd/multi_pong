@@ -15,16 +15,16 @@ Game.Game.prototype = {
         this.player1Score = 0;
         this.player2Score = 0;
 
+        this.initialSetup = true;
+
         this.createPaddles();
         this.createBall();
         this.createScoreBoard();
     },
     update: function() {
-        // If the ball is dead, place it and set it in motion.
-        if (!this.ball.alive) {
-            this.ball.reset(320, 480);
-            this.ball.body.velocity.x = 400;
-            this.ball.body.velocity.y = 400;
+        if (this.initialSetup) {
+            this.resetBall();
+            this.initialSetup = false;
         }
 
         // paddle motion
@@ -56,12 +56,16 @@ Game.Game.prototype = {
         this.add.existing(this.ball);
         this.ball.kill();
 
-        this.ball.events.onOutOfBounds.add(this.ballLost, this);
+        this.ball.events.onOutOfBounds.add(this.resetBall, this);
+    },
+    resetBall: function() {
+        this.time.events.add(Phaser.Timer.SECOND * 3, function() {
+            this.ball.reset(320, 480);
+            this.ball.body.velocity.x = 400;
+            this.ball.body.velocity.y = 400;
+        }, this);
     },
     createScoreBoard: function() {
-    },
-    ballLost: function() {
-        console.log('ball lost!');
     },
     hitPlayer1: function() {
         this.bumpSound.play();
