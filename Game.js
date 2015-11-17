@@ -2,6 +2,9 @@ Game.Game = function(game) {
 };
 
 Game.Game.prototype = {
+    textStyle: {
+        fill: '#ffffff'
+    },
     create: function() {
         this.physics.startSystem(Phaser.Physics.ARCADE);
         this.physics.arcade.checkCollision.down = false;
@@ -59,15 +62,18 @@ Game.Game.prototype = {
         this.ball.events.onOutOfBounds.add(this.scoreAndReset, this);
     },
     scoreAndReset: function() {
+        this.updateScore();
+        this.resetBall();
+    },
+    updateScore: function() {
         var ypos = this.ball.y;
         if (ypos <= 0) {
             this.player2Score += 1;
+            this.player2ScoreText.text = this.player2Score;
         } else {
             this.player1Score += 1;
+            this.player1ScoreText.text = this.player1Score;
         }
-
-        console.log("Score is " + this.player1Score + " to " + this.player2Score);
-        this.resetBall();
     },
     resetBall: function() {
         var xpos = this.rnd.integerInRange(0, 640);
@@ -80,6 +86,8 @@ Game.Game.prototype = {
         }, this);
     },
     createScoreBoard: function() {
+        this.player1ScoreText = this.add.text(20, 20, this.player1Score, this.textStyle);
+        this.player2ScoreText = this.add.text(20, 920, this.player2Score, this.textStyle);
     },
     hitPlayer1: function() {
         this.bumpSound.play();
