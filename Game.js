@@ -28,15 +28,16 @@ Game.Game.prototype = {
         }
 
         // paddle motion
-        // TODO: add secondary controls for player2
         this.player1.body.velocity.x = 0;
         this.player2.body.velocity.x = 0;
         if (this.cursors.left.isDown) {
             this.player1.body.velocity.x = -600;
-            this.player2.body.velocity.x = -600;
         } else if (this.cursors.right.isDown) {
             this.player1.body.velocity.x = 600;
+        } else if (this.cursors.up.isDown) {
             this.player2.body.velocity.x = 600;
+        } else if (this.cursors.down.isDown) {
+            this.player2.body.velocity.x = -600;
         }
 
         // ball paddle collisions
