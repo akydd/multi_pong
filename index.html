@@ -29,7 +29,7 @@
             // var socket = io.connect('http://localhost:8000');
             var socket = io();
             socket.on('connect', function(data) {
-                socket.emit('join', 'Client connected');
+                socket.emit('join', 'Client join');
             });
 
             //	Create your Phaser game and inject it into the game-div div.
