@@ -16,40 +16,52 @@ Game.Game.prototype = {
         this.bump1Sound = this.add.audio('bump1');
 
         this.initialSetup = true;
+        this.playerLoaded = false;
 
-        this.createPaddles();
+        // this.createPaddles();
         this.createBall();
         this.createScoreBoard();
+
+        this.socket = io();
     },
     update: function() {
         if (this.initialSetup) {
-            this.resetBall();
+            // this.resetBall();
+            this.socket.emit('levelLoaded');
             this.initialSetup = false;
         }
 
-        // paddle motion
-        this.player1.body.velocity.x = 0;
-        this.player2.body.velocity.x = 0;
-        if (this.cursors.left.isDown) {
-            this.player1.body.velocity.x = -600;
-        } else if (this.cursors.right.isDown) {
-            this.player1.body.velocity.x = 600;
-        } else if (this.cursors.up.isDown) {
-            this.player2.body.velocity.x = 600;
-        } else if (this.cursors.down.isDown) {
-            this.player2.body.velocity.x = -600;
+        var _this = this;
+        this.socket.on('spawn', function(data) {
+            if (!_this.playerLoaded) {
+                console.log('time to spawn!');
+                _this.createPaddle(data);
+                _this.playerLoaded = true;
+            }
+        });
+
+        if (this.playerLoaded) {
+            // paddle motion
+            this.player1.body.velocity.x = 0;
+            // this.player2.body.velocity.x = 0;
+            if (this.cursors.left.isDown) {
+                this.player1.body.velocity.x = -600;
+            } else if (this.cursors.right.isDown) {
+                this.player1.body.velocity.x = 600;
+            } else if (this.cursors.up.isDown) {
+                // this.player2.body.velocity.x = 600;
+            } else if (this.cursors.down.isDown) {
+                // this.player2.body.velocity.x = -600;
+            }
+
+            // ball paddle collisions
+            this.physics.arcade.collide(this.ball, this.player1, this.hitPlayer1, null, this);
+            // this.physics.arcade.collide(this.ball, this.player2, this.hitPlayer2, null, this);
         }
-
-        // ball paddle collisions
-        this.physics.arcade.collide(this.ball, this.player1, this.hitPlayer1, null, this);
-        this.physics.arcade.collide(this.ball, this.player2, this.hitPlayer2, null, this);
     },
-    createPaddles: function() {
-        this.player1 = new Paddle(this, 320, 40);
-        this.player2 = new Paddle(this, 320, 920);
-
+    createPaddle: function(position) {
+        this.player1 = new Paddle(this, position.x, position.y);
         this.add.existing(this.player1);
-        this.add.existing(this.player2);
     },
     createBall: function() {
         // Initially, create a 'dead' ball.  We will revive it later.
@@ -94,9 +106,9 @@ Game.Game.prototype = {
         this.player2ScoreText = this.add.text(20, 920, this.player2Score, this.textStyle);
     },
     hitPlayer1: function() {
-        this.bumpSound.play();
+        // this.bumpSound.play();
     },
     hitPlayer2: function() {
-        this.bump1Sound.play();
+        // this.bump1Sound.play();
     }
 };
