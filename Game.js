@@ -17,12 +17,32 @@ Game.Game.prototype = {
 
         this.initialSetup = true;
         this.playerLoaded = false;
+        this.remotePlayerLoaded = false;
+        this.savedMoves = [];
+
 
         // this.createPaddles();
         this.createBall();
         this.createScoreBoard();
 
         this.socket = io();
+        var _this = this;
+        this.socket.on('spawnClient', function(data) {
+            if (!_this.playerLoaded) {
+                _this.createPaddle(data);
+                _this.playerLoaded = true;
+            }
+        });
+
+        this.socket.on('spawnRemote', function(data) {
+            if (!_this.remotePlayerLoaded) {
+                _this.createPaddle(data);
+                _this.remotePlayerLoaded = true;
+            }
+        });
+
+        this.socket.on('clientadjust', function(data) {
+        });
     },
     update: function() {
         if (this.initialSetup) {
@@ -31,37 +51,38 @@ Game.Game.prototype = {
             this.initialSetup = false;
         }
 
-        var _this = this;
-        this.socket.on('spawn', function(data) {
-            if (!_this.playerLoaded) {
-                console.log('time to spawn!');
-                _this.createPaddle(data);
-                _this.playerLoaded = true;
-            }
-        });
-
         if (this.playerLoaded) {
             // paddle motion
-            this.player1.body.velocity.x = 0;
-            // this.player2.body.velocity.x = 0;
+            var move = {
+                ts: Date.now()
+            };
             if (this.cursors.left.isDown) {
+                move.dir = -1;
+                this.socket.emit('clientMove', move);
                 this.player1.body.velocity.x = -600;
             } else if (this.cursors.right.isDown) {
+                move.dir = 1;
+                this.socket.emit('clientMove', move);
                 this.player1.body.velocity.x = 600;
-            } else if (this.cursors.up.isDown) {
-                // this.player2.body.velocity.x = 600;
-            } else if (this.cursors.down.isDown) {
-                // this.player2.body.velocity.x = -600;
+            } else {
+                move.dir = 0;
+                this.socket.emit('clientMove', move);
+                this.player1.body.velocity.x = 0;
             }
+            this.updateMoves(move);
 
             // ball paddle collisions
             this.physics.arcade.collide(this.ball, this.player1, this.hitPlayer1, null, this);
-            // this.physics.arcade.collide(this.ball, this.player2, this.hitPlayer2, null, this);
+            this.physics.arcade.collide(this.ball, this.player2, this.hitPlayer2, null, this);
         }
     },
     createPaddle: function(position) {
         this.player1 = new Paddle(this, position.x, position.y);
         this.add.existing(this.player1);
+    },
+    createRemotePaddle: function(position) {
+        this.player2 = new Paddle(this, position.x, position.y);
+        this.add.existing(this.player2);
     },
     createBall: function() {
         // Initially, create a 'dead' ball.  We will revive it later.
@@ -110,5 +131,11 @@ Game.Game.prototype = {
     },
     hitPlayer2: function() {
         // this.bump1Sound.play();
+    },
+    updateMoves: function(move) {
+        this.savedMoves.push(move);
+        if (this.savedMoves.length > 30) {
+            this.savedMoves.pop();
+        }
     }
 };

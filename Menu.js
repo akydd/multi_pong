@@ -8,18 +8,17 @@ Game.Menu.prototype = {
         this.titleText.anchor.setTo(0.5, 0.5);
 
         this.cursor = this.input.keyboard.createCursorKeys();
-    },
-    update: function() {
-        var socket = io();
 
         var _this = this;
-        socket.on('startgame', function() {
+        this.socket = io();
+        this.socket.on('startgame', function() {
             _this.state.start('Game');
         });
-
+    },
+    update: function() {
         if (this.cursor.up.isDown) {
             this.titleText.text = "Waiting for other player";
-            socket.emit('playerReady');
+            this.socket.emit('playerReady');
         }
     }
 };
