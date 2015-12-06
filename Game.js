@@ -34,7 +34,6 @@ Game.Game.prototype = {
         // Make the game aware of its server-assigned id
         this.socket.on('setId', function(data) {
             _this.id = data.id;
-            console.log('id set to ' + _this.id);
         });
 
         // Handle spawning of the client (this player)
@@ -169,6 +168,22 @@ Game.Game.prototype = {
         }
     },
     clientAdjustPosition: function() {
+        if (this.player1 && this.savedMoves.length > 0) {
+            var serverTs = this.clientAdjustment.ts;
+            var posx = this.clientAdjustment.posx;
+            var savedTs = this.savedMoves[0].ts;
+
+            while (savedTs < serverTs) {
+                this.savedMoves.shift();
+                var savedTs = this.savedMoves[0].ts;
+            }
+
+            _.each(this.savedMoves, function(savedMove) {
+                posx = posx + savedMove.dir * 0.6 * 1000.0 / 60;
+            });
+
+            this.player1.x = posx;
+        }
     },
     opponentAdjustPosition: function() {
         if (this.player2) {

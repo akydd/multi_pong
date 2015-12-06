@@ -39,7 +39,6 @@ io.on('connection', function(client) {
 
   client.on('levelLoaded', function() {
     setPlayerState(client, 'levelLoaded');
-    console.log('sending id ' + client.id);
     client.emit('setId', {id: client.id});
 
     if (allPlayersHaveState('levelLoaded')) {
@@ -100,7 +99,8 @@ function processMoves() {
       io.emit('clientadjust', {
         id: playerState.client.id,
         ts: now,
-        posx: playerState.posx
+        posx: playerState.posx,
+        dir: playerState.dir
       });
     }
   });
