@@ -14,7 +14,6 @@ var playersState = [];
 
 // Handle socket connection
 io.on('connection', function(client) {
-  console.log('Client connected...');
   // TODO: limit to 2 concurrent connections
   console.log(io.sockets.sockets.length + " connections");
 
@@ -27,7 +26,7 @@ io.on('connection', function(client) {
       dir: 0
     }
   );
-  console.log(playersState);
+
 
   client.on('playerReady', function() {
     setPlayerState(client, 'ready');
@@ -36,6 +35,7 @@ io.on('connection', function(client) {
       io.emit('startgame');
     }
   });
+
 
   client.on('levelLoaded', function() {
     setPlayerState(client, 'levelLoaded');
@@ -52,7 +52,6 @@ io.on('connection', function(client) {
 
   // paddle only moves at 600px / second, or 0.6px / millisecond
   client.on('clientMove', function(data) {
-    // console.log('RECEIVED clientMove: ' + data.dir + " at ts " + data.ts);
     var clientIndex = _.findIndex(playersState, {client: client});
     var playerState = playersState[clientIndex];
     playerState.dirty = true;
@@ -61,7 +60,6 @@ io.on('connection', function(client) {
   });
 
   client.on('disconnect', function() {
-    console.log('Client disconnected');
     var clientIndex = _.findIndex(playersState, {client: client});
     if (clientIndex > -1) {
       playersState.splice(clientIndex, 1);
@@ -90,18 +88,33 @@ setInterval(function() {
 
 function processMoves() {
   var now = Date.now();
+
   // paddle moves
   _.each(playersState, function(playerState) {
     if (playerState.dirty === true) {
-      playerState.dirty = false;
-      // console.log(playerState.client.id + ' move at ' + playerState.ts + ' processed at ' + now);
+      // calculate the new x position of the paddle
       playerState.posx = playerState.posx + playerState.dir * 0.6 * 1000.0 / 60;
+
+      // Handle left/right wall collisions:
+      // The paddles are 100px wide, anchored at 50px, and the game world is 640px wide.
+      // This means that a paddle's xpos cannot be < 50 or > 590.
+      if (playerState.posx > 590) {
+        playerState.posx = 590;
+      }
+
+      if (playerState.posx < 50) {
+        playerState.posx = 50;
+      }
+
+
       io.emit('clientadjust', {
         id: playerState.client.id,
         ts: now,
         posx: playerState.posx,
         dir: playerState.dir
       });
+
+      playerState.dirty = false;
     }
   });
 

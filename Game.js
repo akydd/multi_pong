@@ -24,7 +24,6 @@ Game.Game.prototype = {
         this.id;
 
 
-        // this.createPaddles();
         this.createBall();
         this.createScoreBoard();
 
