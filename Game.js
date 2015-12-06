@@ -71,6 +71,8 @@ Game.Game.prototype = {
             var move = {
                 ts: Date.now()
             };
+
+            // TODO: optimize this so that clientMove messages are only sent when necessary
             if (this.cursors.left.isDown) {
                 move.dir = -1;
                 this.socket.emit('clientMove', move);
@@ -180,6 +182,17 @@ Game.Game.prototype = {
             _.each(this.savedMoves, function(savedMove) {
                 posx = posx + savedMove.dir * 0.6 * 1000.0 / 60;
             });
+
+            // Since we are manually adjusting the paddles xpos, we also need to manually check for boundary collisions
+            // The paddles are 100px wide, anchored at 50px, and the game world is 640px wide.
+            // This means that a paddle's xpos cannot be < 50 or > 590.
+            if (posx > 590) {
+                posx = 590;
+            }
+
+            if (posx < 50) {
+                posx = 50;
+            }
 
             this.player1.x = posx;
         }

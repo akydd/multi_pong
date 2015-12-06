@@ -106,7 +106,7 @@ function processMoves() {
         playerState.posx = 50;
       }
 
-
+      // TODO: optimize so that clientadjust messages are only sent when necessary
       io.emit('clientadjust', {
         id: playerState.client.id,
         ts: now,
