@@ -19,6 +19,9 @@ Game.Game.prototype = {
         this.playerLoaded = false;
         this.remotePlayerLoaded = false;
         this.savedMoves = [];
+        this.clientAdjustment;
+        this.opponentAdjustment;
+        this.id;
 
 
         // this.createPaddles();
@@ -27,6 +30,14 @@ Game.Game.prototype = {
 
         this.socket = io();
         var _this = this;
+
+        // Make the game aware of its server-assigned id
+        this.socket.on('setId', function(data) {
+            _this.id = data.id;
+            console.log('id set to ' + _this.id);
+        });
+
+        // Handle spawning of the client (this player)
         this.socket.on('spawnClient', function(data) {
             if (!_this.playerLoaded) {
                 _this.createPaddle(data);
@@ -34,14 +45,20 @@ Game.Game.prototype = {
             }
         });
 
+        // Handle spawning of remote player (opponent)
         this.socket.on('spawnRemote', function(data) {
             if (!_this.remotePlayerLoaded) {
-                _this.createPaddle(data);
+                _this.createRemotePaddle(data);
                 _this.remotePlayerLoaded = true;
             }
         });
 
         this.socket.on('clientadjust', function(data) {
+            if (data.id === _this.id) {
+                _this.clientAdjustment = data;
+            } else {
+                _this.opponentAdjustment = data;
+            }
         });
     },
     update: function() {
@@ -70,6 +87,8 @@ Game.Game.prototype = {
                 this.player1.body.velocity.x = 0;
             }
             this.updateMoves(move);
+
+            this.playerAdjustments();
 
             // ball paddle collisions
             this.physics.arcade.collide(this.ball, this.player1, this.hitPlayer1, null, this);
@@ -135,7 +154,27 @@ Game.Game.prototype = {
     updateMoves: function(move) {
         this.savedMoves.push(move);
         if (this.savedMoves.length > 30) {
-            this.savedMoves.pop();
+            this.savedMoves.shift();
+        }
+    },
+    playerAdjustments: function() {
+        if (this.clientAdjustment) {
+            this.clientAdjustPosition();
+            this.clientAdjustment = null;
+        }
+
+        if (this.opponentAdjustment) {
+            this.opponentAdjustPosition();
+            this.opponentAdjustment = null;
+        }
+    },
+    clientAdjustPosition: function() {
+    },
+    opponentAdjustPosition: function() {
+        if (this.player2) {
+            // console.log("Current posx: " + this.player2.x);
+            // console.log("New posx: " + this.opponentAdjustment.posx);
+            this.player2.x = this.opponentAdjustment.posx;
         }
     }
 };
