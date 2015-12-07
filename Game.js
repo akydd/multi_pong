@@ -35,20 +35,20 @@ Game.Game.prototype = {
             _this.id = data.id;
         });
 
-        // Handle spawning of the client (this player)
-        this.socket.on('spawnClient', function(data) {
-            if (!_this.playerLoaded) {
-                _this.createPaddle(data);
-                _this.playerLoaded = true;
-            }
-        });
-
-        // Handle spawning of remote player (opponent)
-        this.socket.on('spawnRemote', function(data) {
-            if (!_this.remotePlayerLoaded) {
-                _this.createRemotePaddle(data);
-                _this.remotePlayerLoaded = true;
-            }
+        this.socket.on('spawnPlayers', function(playersData) {
+            _.each(playersData, function(playerData) {
+                if (_this.id === playerData.id) {
+                    if (!_this.playerLoaded) {
+                        _this.createPaddle(playerData.pos);
+                        _this.playerLoaded = true;
+                    }
+                } else {
+                    if (!_this.remotePlayerLoaded) {
+                        _this.createRemotePaddle(playerData.pos);
+                        _this.remotePlayerLoaded = true;
+                    }
+                }
+            });
         });
 
         this.socket.on('clientadjust', function(data) {

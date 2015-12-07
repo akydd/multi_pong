@@ -42,11 +42,22 @@ io.on('connection', function(client) {
     client.emit('setId', {id: client.id});
 
     if (allPlayersHaveState('levelLoaded')) {
-      playersState[0].client.emit('spawnClient', {x: 320, y: 40});
-      playersState[0].client.emit('spawnRemote', {x: 320, y: 920});
-
-      playersState[1].client.emit('spawnClient', {x: 320, y: 920});
-      playersState[1].client.emit('spawnRemote', {x: 320, y: 40});
+      io.emit('spawnPlayers', [
+        {
+          id: playersState[0].client.id,
+          pos: {
+            x: 320,
+            y: 40
+          }
+        },
+        {
+          id: playersState[1].client.id,
+          pos: {
+            x: 320,
+            y: 920
+          }
+        }
+      ]);
     }
   });
 
