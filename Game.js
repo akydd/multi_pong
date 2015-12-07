@@ -18,9 +18,11 @@ Game.Game.prototype = {
         this.initialSetup = true;
         this.playerLoaded = false;
         this.remotePlayerLoaded = false;
+        this.ballReset = false;
         this.savedMoves = [];
         this.clientAdjustment;
         this.opponentAdjustment;
+        this.updatedBallState;
         this.id;
 
 
@@ -58,6 +60,14 @@ Game.Game.prototype = {
                 _this.opponentAdjustment = data;
             }
         });
+
+        this.socket.on('resetBall', function(ballData) {
+            _this.resetBall(ballData);
+        });
+
+        this.socket.on('updateBallState', function(data) {
+            _this.updatedBallState = data;
+        });
     },
     update: function() {
         if (this.initialSetup) {
@@ -89,6 +99,7 @@ Game.Game.prototype = {
             this.updateMoves(move);
 
             this.playerAdjustments();
+            this.updateBall();
 
             // ball paddle collisions
             this.physics.arcade.collide(this.ball, this.player1, this.hitPlayer1, null, this);
@@ -109,11 +120,11 @@ Game.Game.prototype = {
         this.add.existing(this.ball);
         this.ball.kill();
 
-        this.ball.events.onOutOfBounds.add(this.scoreAndReset, this);
+        // this.ball.events.onOutOfBounds.add(this.scoreAndReset, this);
     },
     scoreAndReset: function() {
         this.updateScore();
-        this.resetBall();
+        // this.resetBall();
     },
     updateScore: function() {
         var ypos = this.ball.y;
@@ -125,18 +136,8 @@ Game.Game.prototype = {
             this.player1ScoreText.text = this.player1Score;
         }
     },
-    resetBall: function() {
-        // The x coordinate, horizontal direction and vertical direction
-        // of the ball are picked at random.
-        var xpos = this.rnd.integerInRange(0, 640);
-        var xdir = this.rnd.pick([-1, 1]);
-        var ydir = this.rnd.pick([-1, 1]);
-
-        this.time.events.add(Phaser.Timer.SECOND * 3, function() {
-            this.ball.reset(xpos, 480);
-            this.ball.body.velocity.x = xdir * 400;
-            this.ball.body.velocity.y = ydir * 400;
-        }, this);
+    resetBall: function(ballData) {
+        this.ball.reset(ballData.posx, ballData.posy);
     },
     createScoreBoard: function() {
         this.player1Score = 0;
@@ -202,6 +203,13 @@ Game.Game.prototype = {
             // console.log("Current posx: " + this.player2.x);
             // console.log("New posx: " + this.opponentAdjustment.posx);
             this.player2.x = this.opponentAdjustment.posx;
+        }
+    },
+    updateBall: function() {
+        if (this.ball && this.updatedBallState) {
+            this.ball.x = this.updatedBallState.posx;
+            this.ball.y = this.updatedBallState.posy;
+            this.updatedBallState = null;
         }
     }
 };

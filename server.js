@@ -11,6 +11,9 @@ app.use(express.static(__dirname));
 server.listen(8000);
 
 var playersState = [];
+var ballState = {
+  active: false
+};
 
 // Handle socket connection
 io.on('connection', function(client) {
@@ -58,6 +61,11 @@ io.on('connection', function(client) {
           }
         }
       ]);
+
+      setTimeout(function() {
+        resetBall();
+      }, 3000);
+
     }
   });
 
@@ -93,6 +101,23 @@ function allPlayersHaveState(state) {
   return (filteredPlayers.length === playersState.length);
 }
 
+function resetBall() {
+  ballState.posx = _.random(11, 629);
+  ballState.posy = 480;
+
+  var directions = [-1, 1];
+
+  var xdirIndex = _.random(0, 1);
+  ballState.xdir = directions[xdirIndex];
+
+  var ydirIndex = _.random(0, 1);
+  ballState.ydir = directions[ydirIndex];
+
+  ballState.active = true;
+
+  io.emit('resetBall', ballState);
+}
+
 setInterval(function() {
   processMoves();
 }, 1000.0 / 60);
@@ -103,7 +128,7 @@ function processMoves() {
   // paddle moves
   _.each(playersState, function(playerState) {
     if (playerState.dirty === true) {
-      // calculate the new x position of the paddle
+      // calculate the new x position of the paddle, given that paddle moves at 600px/s
       playerState.posx = playerState.posx + playerState.dir * 0.6 * 1000.0 / 60;
 
       // Handle left/right wall collisions:
@@ -130,4 +155,28 @@ function processMoves() {
   });
 
   // TODO: ball move
+  if (ballState.active === true) {
+    // calculate new position of ball, given that x/y speeds are each 400px/s
+    ballState.posx = ballState.posx + ballState.xdir * 0.4 * 1000.0 / 60;
+    ballState.posy = ballState.posy + ballState.ydir * 0.4 * 1000.0 / 60;
+
+    // Handle left/right wall collisions.
+    // The ball is is a 20x20 square, so it will hit a wall when xpos = 10
+    // or when xpos = 630.  In either case, switch x direction.
+    if (ballState.posx <= 10) {
+      ballState.posx = 10;
+      ballState.xdir = ballState.xdir * -1;
+    }
+
+    if (ballState.posx >= 630) {
+      ballState.posx = 630;
+      ballState.xdir = ballState.xdir * -1;
+    }
+
+    // console.log('ballpos - x: ' + ballState.posx + ', y: ' + ballState.posy);
+    io.emit('updateBallState', {
+      posx: ballState.posx,
+      posy: ballState.posy
+    });
+  }
 }
