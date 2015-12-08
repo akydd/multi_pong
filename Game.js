@@ -86,17 +86,21 @@ Game.Game.prototype = {
             if (this.cursors.left.isDown) {
                 move.dir = -1;
                 this.socket.emit('clientMove', move);
-                this.player1.body.velocity.x = -600;
+                //this.player1.body.velocity.x = -600;
+                this.player1.x -= 10;
+                this.updateMoves(move);
             } else if (this.cursors.right.isDown) {
                 move.dir = 1;
                 this.socket.emit('clientMove', move);
-                this.player1.body.velocity.x = 600;
+                //this.player1.body.velocity.x = 600;
+                this.player1.x += 10;
+                this.updateMoves(move);
             } else {
-                move.dir = 0;
-                this.socket.emit('clientMove', move);
-                this.player1.body.velocity.x = 0;
+                // move.dir = 0;
+                // this.socket.emit('clientMove', move);
+                // this.player1.body.velocity.x = 0;
             }
-            this.updateMoves(move);
+
 
             this.playerAdjustments();
             this.updateBall();
@@ -173,27 +177,25 @@ Game.Game.prototype = {
         if (this.player1 && this.savedMoves.length > 0) {
             var serverTs = this.clientAdjustment.ts;
             var posx = this.clientAdjustment.posx;
-            var savedTs = this.savedMoves[0].ts;
 
-            while (savedTs < serverTs) {
-                this.savedMoves.shift();
-                var savedTs = this.savedMoves[0].ts;
-            }
+            this.savedMoves = _.filter(this.savedMoves, function(savedMove) {
+                savedMove.ts > serverTs;
+            });
 
             _.each(this.savedMoves, function(savedMove) {
                 posx = posx + savedMove.dir * 0.6 * 1000.0 / 60;
+
+                // Since we are manually adjusting the paddles xpos, we also need to manually check for boundary collisions
+                // The paddles are 100px wide, anchored at 50px, and the game world is 640px wide.
+                // This means that a paddle's xpos cannot be < 50 or > 590.
+                if (posx > 590) {
+                    posx = 590;
+                }
+
+                if (posx < 50) {
+                    posx = 50;
+                }
             });
-
-            // Since we are manually adjusting the paddles xpos, we also need to manually check for boundary collisions
-            // The paddles are 100px wide, anchored at 50px, and the game world is 640px wide.
-            // This means that a paddle's xpos cannot be < 50 or > 590.
-            if (posx > 590) {
-                posx = 590;
-            }
-
-            if (posx < 50) {
-                posx = 50;
-            }
 
             this.player1.x = posx;
         }

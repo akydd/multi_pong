@@ -2,7 +2,8 @@ var express = require('express')
   , app = express(app)
   , server = require('http').createServer(app)
   , io = require('socket.io')(server)
-  , _ = require('underscore');
+  , _ = require('underscore')
+  , prevTs = 0;
 
 
 // serve static files from the current directory
@@ -24,9 +25,8 @@ io.on('connection', function(client) {
     {
       client: client,
       state: 'connected',
-      dirty: false,
       posx: 320,
-      dir: 0
+      moves: []
     }
   );
 
@@ -69,13 +69,15 @@ io.on('connection', function(client) {
     }
   });
 
-  // paddle only moves at 600px / second, or 0.6px / millisecond
+
   client.on('clientMove', function(data) {
     var clientIndex = _.findIndex(playersState, {client: client});
     var playerState = playersState[clientIndex];
-    playerState.dirty = true;
-    playerState.dir = data.dir;
-    playerState.ts = data.ts;
+
+    playerState.moves.push({
+      dir: data.dir,
+      ts: data.ts
+    });
   });
 
   client.on('disconnect', function() {
@@ -123,13 +125,11 @@ setInterval(function() {
 }, 1000.0 / 60);
 
 function processMoves() {
-  var now = Date.now();
-
   // paddle moves
   _.each(playersState, function(playerState) {
-    if (playerState.dirty === true) {
-      // calculate the new x position of the paddle, given that paddle moves at 600px/s
-      playerState.posx = playerState.posx + playerState.dir * 0.6 * 1000.0 / 60;
+    while(playerState.moves.length > 0) {
+      var move = playerState.moves.shift();
+      playerState.posx = playerState.posx + move.dir * 10;
 
       // Handle left/right wall collisions:
       // The paddles are 100px wide, anchored at 50px, and the game world is 640px wide.
@@ -141,17 +141,14 @@ function processMoves() {
       if (playerState.posx < 50) {
         playerState.posx = 50;
       }
-
-      // TODO: optimize so that clientadjust messages are only sent when necessary
-      io.emit('clientadjust', {
-        id: playerState.client.id,
-        ts: now,
-        posx: playerState.posx,
-        dir: playerState.dir
-      });
-
-      playerState.dirty = false;
     }
+
+    // TODO: optimize so that clientadjust messages are only sent when necessary
+    io.emit('clientadjust', {
+      id: playerState.client.id,
+      ts: Date.now(),
+      posx: playerState.posx
+    });
   });
 
   // TODO: ball move
