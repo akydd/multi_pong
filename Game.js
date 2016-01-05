@@ -21,7 +21,7 @@ Game.Game.prototype = {
         this.ballReset = false;
         this.savedMoves = [];
         this.clientAdjustment;
-        this.opponentAdjustment;
+//        this.opponentAdjustment;
         this.updatedBallState;
         this.id;
 
@@ -55,9 +55,10 @@ Game.Game.prototype = {
 
         this.socket.on('clientadjust', function(data) {
             if (data.id === _this.id) {
-                _this.clientAdjustment = data;
+                console.log("server update: " + data.posx + " at " + data.ts);
+                _this.clientAdjustPosition(data);
             } else {
-                _this.opponentAdjustment = data;
+                _this.opponentAdjustPosition(data);
             }
         });
 
@@ -86,23 +87,26 @@ Game.Game.prototype = {
             if (this.cursors.left.isDown) {
                 move.dir = -1;
                 this.socket.emit('clientMove', move);
-                //this.player1.body.velocity.x = -600;
-                this.player1.x -= 10;
+                this.player1.body.velocity.x = -600;
+
+                console.log("client: " + this.player1.x + " at " + move.ts);
+
                 this.updateMoves(move);
             } else if (this.cursors.right.isDown) {
                 move.dir = 1;
                 this.socket.emit('clientMove', move);
-                //this.player1.body.velocity.x = 600;
-                this.player1.x += 10;
+                this.player1.body.velocity.x = 600;
+
+                console.log("client: " + this.player1.x + " at " + move.ts);
+
                 this.updateMoves(move);
             } else {
                 // move.dir = 0;
                 // this.socket.emit('clientMove', move);
-                // this.player1.body.velocity.x = 0;
+                this.player1.body.velocity.x = 0;
             }
 
-
-            this.playerAdjustments();
+//            this.playerAdjustments();
             this.updateBall();
 
             // ball paddle collisions
@@ -162,28 +166,19 @@ Game.Game.prototype = {
             this.savedMoves.shift();
         }
     },
-    playerAdjustments: function() {
-        if (this.clientAdjustment) {
-            this.clientAdjustPosition();
-            this.clientAdjustment = null;
-        }
-
-        if (this.opponentAdjustment) {
-            this.opponentAdjustPosition();
-            this.opponentAdjustment = null;
-        }
-    },
-    clientAdjustPosition: function() {
-        if (this.player1 && this.savedMoves.length > 0) {
-            var serverTs = this.clientAdjustment.ts;
-            var posx = this.clientAdjustment.posx;
+    clientAdjustPosition: function(data) {
+        if (this.player1) {
+            var serverTs = data.ts;
+            var posx = data.posx;
+            console.log("server: " + posx + " at " + serverTs);
 
             this.savedMoves = _.filter(this.savedMoves, function(savedMove) {
                 savedMove.ts > serverTs;
             });
 
+
             _.each(this.savedMoves, function(savedMove) {
-                posx = posx + savedMove.dir * 0.6 * 1000.0 / 60;
+                posx = posx + savedMove.dir * 10;
 
                 // Since we are manually adjusting the paddles xpos, we also need to manually check for boundary collisions
                 // The paddles are 100px wide, anchored at 50px, and the game world is 640px wide.
@@ -198,13 +193,14 @@ Game.Game.prototype = {
             });
 
             this.player1.x = posx;
+            console.log("adjusted client: " + posx);
         }
     },
-    opponentAdjustPosition: function() {
+    opponentAdjustPosition: function(data) {
         if (this.player2) {
             // console.log("Current posx: " + this.player2.x);
-            // console.log("New posx: " + this.opponentAdjustment.posx);
-            this.player2.x = this.opponentAdjustment.posx;
+            // console.log("New posx: " + data.posx);
+            this.player2.x = data.posx;
         }
     },
     updateBall: function() {

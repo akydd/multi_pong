@@ -125,11 +125,18 @@ setInterval(function() {
 }, 1000.0 / 60);
 
 function processMoves() {
+  // elapsed time
+  var now = Date.now();
+  var delta = now - prevTs;
+  prevTs = now;
+
   // paddle moves
   _.each(playersState, function(playerState) {
+    var oldposx = playerState.posx;
+
     while(playerState.moves.length > 0) {
       var move = playerState.moves.shift();
-      playerState.posx = playerState.posx + move.dir * 10;
+      playerState.posx = Math.round(playerState.posx + move.dir * 0.6 * delta);
 
       // Handle left/right wall collisions:
       // The paddles are 100px wide, anchored at 50px, and the game world is 640px wide.
@@ -144,18 +151,21 @@ function processMoves() {
     }
 
     // TODO: optimize so that clientadjust messages are only sent when necessary
-    io.emit('clientadjust', {
-      id: playerState.client.id,
-      ts: Date.now(),
-      posx: playerState.posx
-    });
+    if (oldposx !== playerState.posx) {
+      io.emit('clientadjust', {
+        id: playerState.client.id,
+        ts: Date.now(),
+        posx: playerState.posx
+      });
+      console.log(playerState.posx);
+    }
   });
 
   // TODO: ball move
   if (ballState.active === true) {
     // calculate new position of ball, given that x/y speeds are each 400px/s
-    ballState.posx = ballState.posx + ballState.xdir * 0.4 * 1000.0 / 60;
-    ballState.posy = ballState.posy + ballState.ydir * 0.4 * 1000.0 / 60;
+    ballState.posx = ballState.posx + ballState.xdir * 0.4 * delta;
+    ballState.posy = ballState.posy + ballState.ydir * 0.4 * delta;
 
     // Handle left/right wall collisions.
     // The ball is is a 20x20 square, so it will hit a wall when xpos = 10
