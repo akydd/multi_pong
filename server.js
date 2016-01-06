@@ -157,15 +157,22 @@ function processMoves() {
         ts: Date.now(),
         posx: playerState.posx
       });
-      console.log(playerState.posx);
+      // console.log(playerState.posx);
     }
   });
 
-  // TODO: ball move
+  // ball move
   if (ballState.active === true) {
     // calculate new position of ball, given that x/y speeds are each 400px/s
-    ballState.posx = ballState.posx + ballState.xdir * 0.4 * delta;
+    ballState.posx = ballState.posx + ballState.xdir
+    * 0.4 * delta;
     ballState.posy = ballState.posy + ballState.ydir * 0.4 * delta;
+
+    // Handle ball out of bounds in y direction
+    if (ballState.posy <= 0 || ballState.posy >= 960) {
+      ballState.active = false;
+
+    }
 
     // Handle left/right wall collisions.
     // The ball is is a 20x20 square, so it will hit a wall when xpos = 10
@@ -180,7 +187,16 @@ function processMoves() {
       ballState.xdir = ballState.xdir * -1;
     }
 
-    // console.log('ballpos - x: ' + ballState.posx + ', y: ' + ballState.posy);
+
+
+    // Handle ball & paddle collisions.
+    // The ball is a 20x20 square, so it will collide with:
+    // - player1 when its y coordinate is <= 50
+    // - player2 when its y coordinate is >= 910
+    // In either case we do a simple
+
+
+    console.log('ballpos - x: ' + ballState.posx + ', y: ' + ballState.posy);
     io.emit('updateBallState', {
       posx: ballState.posx,
       posy: ballState.posy

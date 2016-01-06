@@ -22,7 +22,7 @@ Game.Game.prototype = {
         this.savedMoves = [];
         this.clientAdjustment;
 //        this.opponentAdjustment;
-        this.updatedBallState;
+//        this.updatedBallState;
         this.id;
 
 
@@ -67,7 +67,7 @@ Game.Game.prototype = {
         });
 
         this.socket.on('updateBallState', function(data) {
-            _this.updatedBallState = data;
+            _this.updateBall(data);
         });
     },
     update: function() {
@@ -107,7 +107,7 @@ Game.Game.prototype = {
             }
 
 //            this.playerAdjustments();
-            this.updateBall();
+//            this.updateBall();
 
             // ball paddle collisions
             this.physics.arcade.collide(this.ball, this.player1, this.hitPlayer1, null, this);
@@ -203,11 +203,10 @@ Game.Game.prototype = {
             this.player2.x = data.posx;
         }
     },
-    updateBall: function() {
-        if (this.ball && this.updatedBallState) {
-            this.ball.x = this.updatedBallState.posx;
-            this.ball.y = this.updatedBallState.posy;
-            this.updatedBallState = null;
+    updateBall: function(data) {
+        if (this.ball) {
+            this.ball.x = data.posx;
+            this.ball.y = data.posy;
         }
     }
 };
