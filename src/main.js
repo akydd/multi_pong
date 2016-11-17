@@ -1,4 +1,7 @@
+import 'pixi'
+import 'p2'
 import Phaser from 'phaser'
+
 import io from 'socket.io-client'
 
 import BootState from './Boot'

@@ -1,5 +1,7 @@
 import Phaser from 'phaser'
 
+import io from 'socket.io-client'
+
 export default class extends Phaser.State {
     create() {
         var textStyle = {fill: '#ffffff'}
