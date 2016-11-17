@@ -1,11 +1,11 @@
-Game.Game = function(game) {
-};
+import Phaser from 'phaser'
 
-Game.Game.prototype = {
+export default class extends Phaser.State {
     textStyle: {
         fill: '#ffffff'
-    },
-    create: function() {
+    }
+
+    create() {
         this.physics.startSystem(Phaser.Physics.ARCADE);
         this.physics.arcade.checkCollision.down = false;
         this.physics.arcade.checkCollision.up = false;
@@ -30,47 +30,47 @@ Game.Game.prototype = {
         this.createScoreBoard();
 
         this.socket = io();
-        var _this = this;
 
         // Make the game aware of its server-assigned id
-        this.socket.on('setId', function(data) {
-            _this.id = data.id;
+        this.socket.on('setId', data => {
+            this.id = data.id;
         });
 
-        this.socket.on('spawnPlayers', function(playersData) {
-            _.each(playersData, function(playerData) {
-                if (_this.id === playerData.id) {
-                    if (!_this.playerLoaded) {
-                        _this.createPaddle(playerData.pos);
-                        _this.playerLoaded = true;
+        this.socket.on('spawnPlayers', playersData => {
+            _.each(playersData, playerData => {
+                if (this.id === playerData.id) {
+                    if (!this.playerLoaded) {
+                        this.createPaddle(playerData.pos);
+                        this.playerLoaded = true;
                     }
                 } else {
-                    if (!_this.remotePlayerLoaded) {
-                        _this.createRemotePaddle(playerData.pos);
-                        _this.remotePlayerLoaded = true;
+                    if (!this.remotePlayerLoaded) {
+                        this.createRemotePaddle(playerData.pos);
+                        this.remotePlayerLoaded = true;
                     }
                 }
             });
         });
 
-        this.socket.on('clientadjust', function(data) {
-            if (data.id === _this.id) {
+        this.socket.on('clientadjust', data => {
+            if (data.id === this.id) {
                 console.log("server update: " + data.posx + " at " + data.ts);
-                _this.clientAdjustPosition(data);
+                this.clientAdjustPosition(data);
             } else {
-                _this.opponentAdjustPosition(data);
+                this.opponentAdjustPosition(data);
             }
         });
 
-        this.socket.on('resetBall', function(ballData) {
-            _this.resetBall(ballData);
+        this.socket.on('resetBall', ballData => {
+            this.resetBall(ballData);
         });
 
-        this.socket.on('updateBallState', function(data) {
-            _this.updateBall(data);
+        this.socket.on('updateBallState', data => {
+            this.updateBall(data);
         });
-    },
-    update: function() {
+    }
+
+    update() {
         if (this.initialSetup) {
             // this.resetBall();
             this.socket.emit('levelLoaded');
@@ -113,28 +113,33 @@ Game.Game.prototype = {
             this.physics.arcade.collide(this.ball, this.player1, this.hitPlayer1, null, this);
             this.physics.arcade.collide(this.ball, this.player2, this.hitPlayer2, null, this);
         }
-    },
-    createPaddle: function(position) {
+    }
+
+    createPaddle(position) {
         this.player1 = new Paddle(this, position.x, position.y);
         this.add.existing(this.player1);
-    },
-    createRemotePaddle: function(position) {
+    }
+
+    createRemotePaddle(position) {
         this.player2 = new Paddle(this, position.x, position.y);
         this.add.existing(this.player2);
-    },
-    createBall: function() {
+    }
+
+    createBall() {
         // Initially, create a 'dead' ball.  We will revive it later.
         this.ball = new Ball(this, 0, 0);
         this.add.existing(this.ball);
         this.ball.kill();
 
         // this.ball.events.onOutOfBounds.add(this.scoreAndReset, this);
-    },
-    scoreAndReset: function() {
+    }
+
+    scoreAndReset() {
         this.updateScore();
         // this.resetBall();
-    },
-    updateScore: function() {
+    }
+
+    updateScore() {
         var ypos = this.ball.y;
         if (ypos <= 0) {
             this.player2Score += 1;
@@ -143,41 +148,47 @@ Game.Game.prototype = {
             this.player1Score += 1;
             this.player1ScoreText.text = this.player1Score;
         }
-    },
-    resetBall: function(ballData) {
+    }
+
+    resetBall(ballData) {
         this.ball.reset(ballData.posx, ballData.posy);
-    },
-    createScoreBoard: function() {
+    }
+
+    createScoreBoard() {
         this.player1Score = 0;
         this.player2Score = 0;
 
         this.player1ScoreText = this.add.text(20, 20, this.player1Score, this.textStyle);
         this.player2ScoreText = this.add.text(20, 920, this.player2Score, this.textStyle);
-    },
-    hitPlayer1: function() {
+    }
+
+    hitPlayer1() {
         // this.bumpSound.play();
-    },
-    hitPlayer2: function() {
+    }
+
+    hitPlayer2() {
         // this.bump1Sound.play();
-    },
-    updateMoves: function(move) {
+    }
+
+    updateMoves(move) {
         this.savedMoves.push(move);
         if (this.savedMoves.length > 30) {
             this.savedMoves.shift();
         }
-    },
-    clientAdjustPosition: function(data) {
+    }
+
+    clientAdjustPosition(data) {
         if (this.player1) {
             var serverTs = data.ts;
             var posx = data.posx;
             console.log("server: " + posx + " at " + serverTs);
 
-            this.savedMoves = _.filter(this.savedMoves, function(savedMove) {
+            this.savedMoves = _.filter(this.savedMoves, savedMove => {
                 savedMove.ts > serverTs;
             });
 
 
-            _.each(this.savedMoves, function(savedMove) {
+            _.each(this.savedMoves, savedMove => {
                 posx = posx + savedMove.dir * 10;
 
                 // Since we are manually adjusting the paddles xpos, we also need to manually check for boundary collisions
@@ -195,18 +206,20 @@ Game.Game.prototype = {
             this.player1.x = posx;
             console.log("adjusted client: " + posx);
         }
-    },
-    opponentAdjustPosition: function(data) {
+    }
+
+    opponentAdjustPosition(data) {
         if (this.player2) {
             // console.log("Current posx: " + this.player2.x);
             // console.log("New posx: " + data.posx);
             this.player2.x = data.posx;
         }
-    },
-    updateBall: function(data) {
+    }
+
+    updateBall(data) {
         if (this.ball) {
             this.ball.x = data.posx;
             this.ball.y = data.posy;
         }
     }
-};
+}

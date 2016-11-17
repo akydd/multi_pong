@@ -9,43 +9,12 @@
             margin: auto;
         }
     </style>
-    <script src="/socket.io/socket.io.js" charset="utf-8"></script>
-    <script src="./node_modules/phaser/build/phaser.js" charset="utf-8"></script>
-    <script src="./node_modules/underscore/underscore-min.js" charset="utf-8"></script>
-    <script src="Paddle.js"></script>
-    <script src="Ball.js"></script>
-    <script src="Boot.js"></script>
-    <script src="Preloader.js"></script>
-    <script src="Menu.js"></script>
-    <script src="Game.js"></script>
     <title>Multiplayer Pong</title>
 </head>
 
 <body>
     <div id="game-div"></div>
-
-    <script type="text/javascript">
-        window.onload = function() {
-            // Connect to the server
-            // var socket = io.connect('http://localhost:8000');
-            var socket = io();
-            socket.on('connect', function(data) {
-                socket.emit('join', 'Client join');
-            });
-
-            //	Create your Phaser game and inject it into the game-div div.
-            var game = new Phaser.Game(640, 960, Phaser.AUTO, 'game-div');
-
-            //	Add the game States
-            game.state.add('Boot', Game.Boot);
-            game.state.add('Preloader', Game.Preloader);
-            game.state.add('Menu', Game.Menu);
-            game.state.add('Game', Game.Game);
-
-            // Now start the Boot state.
-            game.state.start('Boot');
-        };
-    </script>
+    <script src="dist/bundle.js"></script>
 </body>
 
 </html>
