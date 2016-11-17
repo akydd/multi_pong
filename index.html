@@ -9,7 +9,7 @@
             margin: auto;
         }
     </style>
-    <script src="/socket.io/socket.io.js" charset="utf-8"></script>
+    <script src="http://localhost:8000/socket.io/socket.io.js"></script>
     <script src="./node_modules/phaser/build/phaser.js" charset="utf-8"></script>
     <script src="./node_modules/underscore/underscore-min.js" charset="utf-8"></script>
     <script src="Paddle.js"></script>
@@ -27,8 +27,9 @@
     <script type="text/javascript">
         window.onload = function() {
             // Connect to the server
-            // var socket = io.connect('http://localhost:8000');
-            var socket = io();
+            var socket = io.connect('http://localhost:8000');
+            socket.connect()
+
             socket.on('connect', function(data) {
                 socket.emit('join', 'Client join');
             });
