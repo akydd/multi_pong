@@ -1,8 +1,11 @@
 import Phaser from 'phaser'
 
 export default class extends Phaser.State {
-    textStyle: {
-        fill: '#ffffff'
+    constructor() {
+        super()
+        this.textStyle = {
+            fill: '#ffffff'
+        }
     }
 
     create() {

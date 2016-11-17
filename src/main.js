@@ -6,11 +6,11 @@ import PreloaderState from './Preloader'
 import MenuState from './Menu'
 import GameState from './Game'
 
-class Game extends Phaser.Game {
+export default class Game extends Phaser.Game {
     constructor() {
         // Connect to the server
-        // var socket = io.connect('http://localhost:8000');
-        let socket = io();
+        let socket = io.connect('http://localhost:8000');
+
         socket.on('connect', () => {
             socket.emit('join', 'Client join')
         })
