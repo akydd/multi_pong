@@ -1,7 +1,5 @@
 import Phaser from 'phaser'
 
-import io from 'socket.io-client'
-
 export default class extends Phaser.State {
     create() {
         var textStyle = {fill: '#ffffff'}
@@ -10,8 +8,7 @@ export default class extends Phaser.State {
 
         this.cursor = this.input.keyboard.createCursorKeys()
 
-        this.socket = io();
-        this.socket.on('startgame', () => {
+        this.game.socket.on('startgame', () => {
             this.state.start('Game')
         });
     }
@@ -19,7 +16,7 @@ export default class extends Phaser.State {
     update() {
         if (this.cursor.up.isDown) {
             this.titleText.text = "Waiting for other player"
-            this.socket.emit('playerReady')
+            this.game.socket.emit('playerReady')
         }
     }
 }

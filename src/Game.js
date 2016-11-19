@@ -1,5 +1,8 @@
 import Phaser from 'phaser'
 
+import Ball from './Ball'
+import Paddle from './Paddle'
+
 export default class extends Phaser.State {
     constructor() {
         super()
@@ -32,15 +35,13 @@ export default class extends Phaser.State {
         this.createBall();
         this.createScoreBoard();
 
-        this.socket = io();
-
         // Make the game aware of its server-assigned id
-        this.socket.on('setId', data => {
+        this.game.socket.on('setId', data => {
             this.id = data.id;
         });
 
-        this.socket.on('spawnPlayers', playersData => {
-            _.each(playersData, playerData => {
+        this.game.socket.on('spawnPlayers', playersData => {
+            playersData.forEach(playerData => {
                 if (this.id === playerData.id) {
                     if (!this.playerLoaded) {
                         this.createPaddle(playerData.pos);
@@ -55,7 +56,7 @@ export default class extends Phaser.State {
             });
         });
 
-        this.socket.on('clientadjust', data => {
+        this.game.socket.on('clientadjust', data => {
             if (data.id === this.id) {
                 console.log("server update: " + data.posx + " at " + data.ts);
                 this.clientAdjustPosition(data);
@@ -64,11 +65,11 @@ export default class extends Phaser.State {
             }
         });
 
-        this.socket.on('resetBall', ballData => {
+        this.game.socket.on('resetBall', ballData => {
             this.resetBall(ballData);
         });
 
-        this.socket.on('updateBallState', data => {
+        this.game.socket.on('updateBallState', data => {
             this.updateBall(data);
         });
     }
@@ -76,7 +77,7 @@ export default class extends Phaser.State {
     update() {
         if (this.initialSetup) {
             // this.resetBall();
-            this.socket.emit('levelLoaded');
+            this.game.socket.emit('levelLoaded');
             this.initialSetup = false;
         }
 
@@ -89,7 +90,7 @@ export default class extends Phaser.State {
             // TODO: optimize this so that clientMove messages are only sent when necessary
             if (this.cursors.left.isDown) {
                 move.dir = -1;
-                this.socket.emit('clientMove', move);
+                this.game.socket.emit('clientMove', move);
                 this.player1.body.velocity.x = -600;
 
                 console.log("client: " + this.player1.x + " at " + move.ts);
@@ -97,7 +98,7 @@ export default class extends Phaser.State {
                 this.updateMoves(move);
             } else if (this.cursors.right.isDown) {
                 move.dir = 1;
-                this.socket.emit('clientMove', move);
+                this.game.socket.emit('clientMove', move);
                 this.player1.body.velocity.x = 600;
 
                 console.log("client: " + this.player1.x + " at " + move.ts);
@@ -186,12 +187,12 @@ export default class extends Phaser.State {
             var posx = data.posx;
             console.log("server: " + posx + " at " + serverTs);
 
-            this.savedMoves = _.filter(this.savedMoves, savedMove => {
+            this.savedMoves = this.savedMoves.filter(savedMove => {
                 savedMove.ts > serverTs;
             });
 
 
-            _.each(this.savedMoves, savedMove => {
+            this.savedMoves.forEach(savedMove => {
                 posx = posx + savedMove.dir * 10;
 
                 // Since we are manually adjusting the paddles xpos, we also need to manually check for boundary collisions
