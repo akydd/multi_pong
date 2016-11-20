@@ -72,6 +72,10 @@ export default class extends Phaser.State {
         this.game.socket.on('updateBallState', data => {
             this.updateBall(data);
         });
+
+        this.game.socket.on('updateScore', data => {
+            this.updateScore(data);
+        });
     }
 
     update() {
@@ -134,23 +138,13 @@ export default class extends Phaser.State {
         this.ball = new Ball(this, 0, 0);
         this.add.existing(this.ball);
         this.ball.kill();
-
-        // this.ball.events.onOutOfBounds.add(this.scoreAndReset, this);
     }
 
-    scoreAndReset() {
-        this.updateScore();
-        // this.resetBall();
-    }
-
-    updateScore() {
-        var ypos = this.ball.y;
-        if (ypos <= 0) {
-            this.player2Score += 1;
-            this.player2ScoreText.text = this.player2Score;
+    updateScore(data) {
+        if (data.player === 'player2') {
+            this.player2ScoreText.text = data.score;
         } else {
-            this.player1Score += 1;
-            this.player1ScoreText.text = this.player1Score;
+            this.player1ScoreText.text = data.score;
         }
     }
 
@@ -159,11 +153,8 @@ export default class extends Phaser.State {
     }
 
     createScoreBoard() {
-        this.player1Score = 0;
-        this.player2Score = 0;
-
-        this.player1ScoreText = this.add.text(20, 20, this.player1Score, this.textStyle);
-        this.player2ScoreText = this.add.text(20, 920, this.player2Score, this.textStyle);
+        this.player1ScoreText = this.add.text(20, 20, 0, this.textStyle);
+        this.player2ScoreText = this.add.text(20, 920, 0, this.textStyle);
     }
 
     hitPlayer1() {
