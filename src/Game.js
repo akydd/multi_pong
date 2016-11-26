@@ -29,20 +29,14 @@ export default class extends Phaser.State {
         this.clientAdjustment;
 //        this.opponentAdjustment;
 //        this.updatedBallState;
-        this.id;
 
 
         this.createBall();
         this.createScoreBoard();
 
-        // Make the game aware of its server-assigned id
-        this.game.socket.on('setId', data => {
-            this.id = data.id;
-        });
-
         this.game.socket.on('spawnPlayers', playersData => {
             playersData.forEach(playerData => {
-                if (this.id === playerData.id) {
+                if (this.game.clientId === playerData.id) {
                     if (!this.playerLoaded) {
                         this.createPaddle(playerData.pos);
                         this.playerLoaded = true;
@@ -57,7 +51,7 @@ export default class extends Phaser.State {
         });
 
         this.game.socket.on('clientadjust', data => {
-            if (data.id === this.id) {
+            if (data.id === this.game.clientId) {
                 console.log("server update: " + data.posx + " at " + data.ts);
                 this.clientAdjustPosition(data);
             } else {

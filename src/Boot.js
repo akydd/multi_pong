@@ -15,7 +15,8 @@ export default class extends Phaser.State {
         this.game.socket = io.connect('http://localhost:8000');
 
         this.game.socket.on('connect', () => {
-            this.game.socket.emit('join', 'Client join')
+            this.game.clientId = this.game.socket.io.engine.id
+            console.log("Connected as client " + this.game.socket.io.engine.id)
         })
 
         // Keep the game running if the browser window loses focus.  Switching browser tabs
