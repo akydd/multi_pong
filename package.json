@@ -4,8 +4,8 @@
   "description": "Multiplayer Pong using nodejs and Phaser",
   "main": "app.js",
   "scripts": {
-    "dev": "webpack",
-    "deploy": "webpack --config webpack.production.config.js"
+    "build": "webpack",
+    "dev": "npm run build && webpack-dev-server --port 8181"
   },
   "keywords": [
     "phaser",
