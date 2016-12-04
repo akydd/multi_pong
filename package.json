@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "build": "webpack",
-    "dev": "npm run build && webpack-dev-server --port 8181"
+    "dev": "npm run build && webpack-dev-server --port 8181",
+    "start": "npm run build && node ./src/app.js"
   },
   "keywords": [
     "phaser",
