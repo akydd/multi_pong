@@ -19,6 +19,12 @@ export default class extends Phaser.State {
             console.log("Connected as client " + this.game.socket.io.engine.id)
         })
 
+        this.game.socket.on('disconnect', (data) => {
+            console.log("Disconnecting, reason: " + data.message)
+            this.game.socket.disconnect()
+            this.state.start('Full')
+        })
+
         // Keep the game running if the browser window loses focus.  Switching browser tabs
         // will still pause the game.
         this.game.stage.disableVisibilityChange = true
