@@ -47,25 +47,29 @@ export default class extends Phaser.State {
             });
         });
 
-        this.game.socket.on('clientadjust', data => {
-            if (data.id === this.game.clientId) {
-                console.log("server update: " + data.posx + " at " + data.ts);
-                this.clientAdjustPosition(data);
-            } else {
-                this.opponentAdjustPosition(data);
+        this.game.socket.on('gameState', message => {
+            if (message.clientAdjust) {
+                message.clientAdjust.forEach(data => {
+                    if (data.id === this.game.clientId) {
+                        console.log("server update: " + data.posx + " at " + data.ts);
+                        this.clientAdjustPosition(data);
+                    } else {
+                        this.opponentAdjustPosition(data);
+                    }
+                })
             }
-        });
+
+            if (message.updateScore) {
+                this.updateScore(message.updateScore)
+            }
+
+            if (message.ballState) {
+                this.updateBall(message.ballState)
+            }
+        })
 
         this.game.socket.on('resetBall', ballData => {
             this.resetBall(ballData);
-        });
-
-        this.game.socket.on('updateBallState', data => {
-            this.updateBall(data);
-        });
-
-        this.game.socket.on('updateScore', data => {
-            this.updateScore(data);
         });
     }
 
