@@ -11,7 +11,7 @@ import FullState from './Full'
 export default class Game extends Phaser.Game {
     constructor() {
         //	Create your Phaser game and inject it into the game-div div.
-        super(640, 960, Phaser.AUTO, 'game-div')
+        super(640, 640, Phaser.AUTO, 'game-div')
  
         //	Add the game States
         this.state.add('Boot', BootState)

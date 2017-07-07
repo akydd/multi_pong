@@ -27,9 +27,6 @@ export default class extends Phaser.State {
         this.ballReset = false;
         this.savedMoves = [];
         this.clientAdjustment;
-//        this.opponentAdjustment;
-//        this.updatedBallState;
-
 
         this.createBall();
         this.createScoreBoard();
@@ -148,15 +145,15 @@ export default class extends Phaser.State {
 
     createScoreBoard() {
         this.player1ScoreText = this.add.text(20, 20, 0, this.textStyle);
-        this.player2ScoreText = this.add.text(20, 920, 0, this.textStyle);
+        this.player2ScoreText = this.add.text(20, 600, 0, this.textStyle);
     }
 
     hitPlayer1() {
-        // this.bumpSound.play();
+        this.bumpSound.play();
     }
 
     hitPlayer2() {
-        // this.bump1Sound.play();
+        this.bump1Sound.play();
     }
 
     updateMoves(move) {

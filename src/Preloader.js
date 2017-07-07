@@ -3,9 +3,9 @@ import Phaser from 'phaser'
 export default class extends Phaser.State {
     preload() {
         var textStyle = {fill: '#ffffff'}
-        var loadingText = this.add.text(320, 480 - 40, "loading...", textStyle)
-        var loadingBar = this.add.sprite(320, 480, 'loadingBar')
-        var loadingOutline = this.add.sprite(320, 480, 'loadingOutline')
+        var loadingText = this.add.text(320, 320 - 40, "loading...", textStyle)
+        var loadingBar = this.add.sprite(320, 320, 'loadingBar')
+        var loadingOutline = this.add.sprite(320, 320, 'loadingOutline')
 
         loadingText.anchor.setTo(0.5, 0.5)
         loadingBar.anchor.setTo(0.5, 0.5)
