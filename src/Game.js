@@ -67,15 +67,10 @@ export default class extends Phaser.State {
                 this.updateBall(message.ballState)
             }
         })
-
-        this.game.socket.on('resetBall', ballData => {
-            this.resetBall(ballData);
-        });
     }
 
     update() {
         if (this.initialSetup) {
-            // this.resetBall();
             this.game.socket.emit('levelLoaded');
             this.initialSetup = false;
         }
@@ -143,10 +138,6 @@ export default class extends Phaser.State {
         }
     }
 
-    resetBall(ballData) {
-        this.ball.reset(ballData.posx, ballData.posy);
-    }
-
     createScoreBoard() {
         this.player1ScoreText = this.add.text(20, 20, 0, this.textStyle);
         this.player2ScoreText = this.add.text(20, 600, 0, this.textStyle);
@@ -208,8 +199,13 @@ export default class extends Phaser.State {
 
     updateBall(data) {
         if (this.ball) {
-            this.ball.x = data.posx;
-            this.ball.y = data.posy;
+            // Was the ball dead, but is now active again?
+            if (!this.ball.alive && data.active === true) {
+                this.ball.reset(data.posx, data.posy);
+            } else {
+                this.ball.x = data.posx;
+                this.ball.y = data.posy;
+            }
         }
     }
 }
