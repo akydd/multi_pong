@@ -47,31 +47,30 @@ export default class extends Phaser.State {
             });
         });
 
-        this.game.socket.on('clientadjust', data => {
-            if (data.id === this.game.clientId) {
-                console.log("server update: " + data.posx + " at " + data.ts);
-                this.clientAdjustPosition(data);
-            } else {
-                this.opponentAdjustPosition(data);
+        this.game.socket.on('gameState', message => {
+            if (message.clientAdjust) {
+                message.clientAdjust.forEach(data => {
+                    if (data.id === this.game.clientId) {
+                        console.log("server update: " + data.posx + " at " + data.ts);
+                        this.clientAdjustPosition(data);
+                    } else {
+                        this.opponentAdjustPosition(data);
+                    }
+                })
             }
-        });
 
-        this.game.socket.on('resetBall', ballData => {
-            this.resetBall(ballData);
-        });
+            if (message.updateScore) {
+                this.updateScore(message.updateScore)
+            }
 
-        this.game.socket.on('updateBallState', data => {
-            this.updateBall(data);
-        });
-
-        this.game.socket.on('updateScore', data => {
-            this.updateScore(data);
-        });
+            if (message.ballState) {
+                this.updateBall(message.ballState)
+            }
+        })
     }
 
     update() {
         if (this.initialSetup) {
-            // this.resetBall();
             this.game.socket.emit('levelLoaded');
             this.initialSetup = false;
         }
@@ -139,10 +138,6 @@ export default class extends Phaser.State {
         }
     }
 
-    resetBall(ballData) {
-        this.ball.reset(ballData.posx, ballData.posy);
-    }
-
     createScoreBoard() {
         this.player1ScoreText = this.add.text(20, 20, 0, this.textStyle);
         this.player2ScoreText = this.add.text(20, 600, 0, this.textStyle);
@@ -204,8 +199,13 @@ export default class extends Phaser.State {
 
     updateBall(data) {
         if (this.ball) {
-            this.ball.x = data.posx;
-            this.ball.y = data.posy;
+            // Was the ball dead, but is now active again?
+            if (!this.ball.alive && data.active === true) {
+                this.ball.reset(data.posx, data.posy);
+            } else {
+                this.ball.x = data.posx;
+                this.ball.y = data.posy;
+            }
         }
     }
 }
