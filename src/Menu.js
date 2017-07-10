@@ -6,10 +6,16 @@ export default class extends Phaser.State {
         this.titleText = this.add.text(320, 320 - 40, "Press Up arrow when ready", textStyle)
         this.titleText.anchor.setTo(0.5, 0.5)
 
+        // Without this flag, this state manager will try to start the state 'Game' multiple times
+        this.started = false
+
         this.cursor = this.input.keyboard.createCursorKeys()
 
-        this.game.socket.on('startgame', () => {
-            this.state.start('Game')
+        this.game.socket.on('gameState', message => {
+            if (message.status === 'startgame' && this.started === false) {
+                this.started = true
+                this.state.start('Game')
+            }
         });
     }
 
