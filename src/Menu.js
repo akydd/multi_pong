@@ -12,7 +12,7 @@ export default class extends Phaser.State {
         this.cursor = this.input.keyboard.createCursorKeys()
 
         this.game.socket.on('gameState', message => {
-            if (message.status === 'startgame' && this.started === false) {
+            if (message.status === 1 && this.started === false) {
                 this.started = true
                 this.state.start('Game')
             }
