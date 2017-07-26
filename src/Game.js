@@ -40,18 +40,18 @@ export default class extends Phaser.State {
                 return
             }
 
-            if (message.playersState) {
-                for (var clientId in message.playersState) {
-                    var playerState = message.playersState[clientId]
+            if (message.players) {
+                for (var clientId in message.players) {
+                    var player = message.players[clientId]
 
                     if (this.game.clientId === clientId) {
                         if (!this.playerLoaded) {
-                            this.createPaddle(playerState.posx, playerState.posy)
+                            this.createPaddle(player.x, player.y)
                             this.playerLoaded = true
                         }
                     } else {
                         if (!this.remotePlayerLoaded) {
-                            this.createRemotePaddle(playerState.posx, playerState.posy)
+                            this.createRemotePaddle(player.x, player.y)
                             this.remotePlayerLoaded = true
                         }
                     }
@@ -61,7 +61,7 @@ export default class extends Phaser.State {
             if (message.clientAdjust) {
                 message.clientAdjust.forEach(data => {
                     if (data.id === this.game.clientId) {
-                        console.log("server update: " + data.posx + " at " + data.ts)
+                        console.log("server update: " + data.x + " at " + data.ts)
                         this.clientAdjustPosition(data)
                     } else {
                         this.opponentAdjustPosition(data)
@@ -73,8 +73,8 @@ export default class extends Phaser.State {
                 this.updateScore(message.updateScore)
             }
 
-            if (message.ballState) {
-                this.updateBall(message.ballState)
+            if (message.ball) {
+                this.updateBall(message.ball)
             }
         })
     }
@@ -171,8 +171,8 @@ export default class extends Phaser.State {
     clientAdjustPosition(data) {
         if (this.player1) {
             var serverTs = data.ts
-            var posx = data.posx
-            console.log("server: " + posx + " at " + serverTs)
+            var x = data.x
+            console.log("server: " + x + " at " + serverTs)
 
             this.savedMoves = this.savedMoves.filter(savedMove => {
                 savedMove.ts > serverTs
@@ -180,30 +180,30 @@ export default class extends Phaser.State {
 
 
             this.savedMoves.forEach(savedMove => {
-                posx = posx + savedMove.dir * 10
+                x = x + savedMove.dir * 10
 
                 // Since we are manually adjusting the paddles xpos, we also need to manually check for boundary collisions
                 // The paddles are 100px wide, anchored at 50px, and the game world is 640px wide.
                 // This means that a paddle's xpos cannot be < 50 or > 590.
-                if (posx > 590) {
-                    posx = 590
+                if (x > 590) {
+                    x = 590
                 }
 
-                if (posx < 50) {
-                    posx = 50
+                if (x < 50) {
+                    x = 50
                 }
             })
 
-            this.player1.x = posx
-            console.log("adjusted client: " + posx)
+            this.player1.x = x
+            console.log("adjusted client: " + x)
         }
     }
 
     opponentAdjustPosition(data) {
         if (this.player2) {
-            // console.log("Current posx: " + this.player2.x)
-            // console.log("New posx: " + data.posx)
-            this.player2.x = data.posx
+            // console.log("Current x: " + this.player2.x)
+            // console.log("New x: " + data.x)
+            this.player2.x = data.x
         }
     }
 
@@ -211,10 +211,10 @@ export default class extends Phaser.State {
         if (this.ball) {
             // Was the ball dead, but is now active again?
             if (!this.ball.alive && data.active === true) {
-                this.ball.reset(data.posx, data.posy)
+                this.ball.reset(data.x, data.y)
             } else {
-                this.ball.x = data.posx
-                this.ball.y = data.posy
+                this.ball.x = data.x
+                this.ball.y = data.y
             }
         }
     }
