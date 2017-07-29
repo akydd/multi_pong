@@ -34,7 +34,7 @@ export default class extends Phaser.State {
 
         this.game.socket.on('gameState', message => {
             // Back to the menu if we lose a player
-            if (message.status === 1 && this.ended === false) {
+            if (message.status === 0 && this.ended === false) {
                 this.ended = true
                 this.state.start('Menu')
                 return
