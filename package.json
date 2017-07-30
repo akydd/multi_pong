@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "postinstall": "webpack",
-    "dev": "GAME_SERVER=http://localhost:8000 webpack-dev-server --port 8181",
+    "dev": "webpack-dev-server --port 8181",
     "start": "node ./src/app.js"
   },
   "keywords": [

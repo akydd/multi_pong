@@ -12,8 +12,8 @@ export default class extends Phaser.State {
 
     create() {
         // Connect to the server
-        this.game.socket = io.connect(process.env.GAME_SERVER);
-        console.log("Attempting to connect to " + process.env.GAME_SERVER)
+        this.game.socket = io.connect(GAME_SERVER);
+        console.log("Attempting to connect to " + GAME_SERVER)
 
         this.game.socket.on('connect', () => {
             this.game.clientId = this.game.socket.io.engine.id

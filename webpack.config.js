@@ -34,6 +34,11 @@ module.exports = {
             'pixi': pixi,
             'p2': p2
         }
-    }
+    },
+    plugins: [
+        new webpack.DefinePlugin({
+            GAME_SERVER: process.env.NODE_ENV === 'production' ? process.env.GAME_SERVER : 'http://localhost:8000/'
+        })
+    ]
 }
 
