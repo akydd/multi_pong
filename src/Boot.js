@@ -12,8 +12,7 @@ export default class extends Phaser.State {
 
     create() {
         // Connect to the server
-        let gameServer = process.env.GAME_SERVER || 'http://localhost:8000'
-        this.game.socket = io.connect(gameServer);
+        this.game.socket = io.connect(process.env.GAME_SERVER);
 
         this.game.socket.on('connect', () => {
             this.game.clientId = this.game.socket.io.engine.id
