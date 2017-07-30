@@ -37,7 +37,7 @@ module.exports = {
     },
     plugins: [
         new webpack.DefinePlugin({
-            GAME_SERVER: process.env.NODE_ENV === 'production' ? process.env.GAME_SERVER : 'http://localhost:8000/'
+            GAME_SERVER: process.env.NODE_ENV === 'production' ? JSON.stringify(process.env.GAME_SERVER) : 'http://localhost:8000/'
         })
     ]
 }
