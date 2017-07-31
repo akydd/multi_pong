@@ -111,7 +111,7 @@ export default class extends Phaser.State {
                 this.updateMoves(move)
             } else {
                 move.dir = 0;
-                this.socket.emit('clientMove', move)
+                this.game.socket.emit('clientMove', move)
                 this.player1.body.velocity.x = 0
                 this.updateMoves(move)
             }
