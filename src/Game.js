@@ -92,6 +92,7 @@ export default class extends Phaser.State {
             };
 
             // TODO: optimize this so that clientMove messages are only sent when necessary
+            // Paddle moves at 600 px/s
             if (this.cursors.left.isDown) {
                 move.dir = -1
                 this.game.socket.emit('clientMove', move)
@@ -113,9 +114,6 @@ export default class extends Phaser.State {
                 // this.socket.emit('clientMove', move)
                 this.player1.body.velocity.x = 0
             }
-
-//            this.playerAdjustments()
-//            this.updateBall()
 
             // ball paddle collisions
             this.physics.arcade.collide(this.ball, this.player1, this.hitPlayer1, null, this)
@@ -161,6 +159,7 @@ export default class extends Phaser.State {
         this.bump1Sound.play()
     }
 
+    // Keep a history of the last 30 moves
     updateMoves(move) {
         this.savedMoves.push(move);
         if (this.savedMoves.length > 30) {
@@ -180,7 +179,7 @@ export default class extends Phaser.State {
 
 
             this.savedMoves.forEach(savedMove => {
-                x = x + savedMove.dir * 10
+                x = x + savedMove.dir * 0.6 * this.physics.physicsElapsed
 
                 // Since we are manually adjusting the paddles xpos, we also need to manually check for boundary collisions
                 // The paddles are 100px wide, anchored at 50px, and the game world is 640px wide.
