@@ -96,8 +96,7 @@ export default class extends Phaser.State {
             if (this.cursors.left.isDown) {
                 move.dir = -1
                 this.game.socket.emit('clientMove', move)
-                // this.player1.body.velocity.x = -600
-                this.player1.x = this.player1.x - 0.6 * this.physics.physicsElapsed
+                this.player1.body.velocity.x = -600
 
                 console.log("client: " + this.player1.x + " at " + move.ts)
 
@@ -105,16 +104,16 @@ export default class extends Phaser.State {
             } else if (this.cursors.right.isDown) {
                 move.dir = 1
                 this.game.socket.emit('clientMove', move)
-                // this.player1.body.velocity.x = 600
-                this.player1.x = this.player1.x + 0.6 * this.physics.physicsElapsed
+                this.player1.body.velocity.x = 600
 
                 console.log("client: " + this.player1.x + " at " + move.ts)
 
                 this.updateMoves(move)
             } else {
-                // move.dir = 0;
-                // this.socket.emit('clientMove', move)
-                // this.player1.body.velocity.x = 0
+                move.dir = 0;
+                this.socket.emit('clientMove', move)
+                this.player1.body.velocity.x = 0
+                this.updateMoves(move)
             }
 
             // ball paddle collisions
